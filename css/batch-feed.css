@@ -1,0 +1,23 @@
+/* ================== 批量录入专用样式 ================== */
+.batch-list-container {
+    flex: 1; 
+    overflow-y: auto; 
+    border: 2px solid #FFEEE4; border-radius: 12px; margin-bottom: 15px;
+    max-height: 500px; 
+    min-height: 300px;
+}
+.batch-list-container .data-table th,
+.batch-list-container .data-table td {
+    text-align: center !important; 
+    padding: 6px 4px !important; 
+    font-size: 14px; 
+}
+.batch-input.score-input {
+    width: 100px !important; 
+    height: 32px; 
+    line-height: 32px;
+    font-size: 14px;
+    text-align: center;      
+    margin: 0 auto;          
+    display: block;
+}

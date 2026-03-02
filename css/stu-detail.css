@@ -1,0 +1,51 @@
+/* ================== 详情页专用 ================== */
+.detail-content { 
+    display: flex; flex-direction: column; align-items: center; 
+    overflow-y: auto; overflow-x: hidden;
+    padding: 0 10px 10px 10px; box-sizing: border-box; width: 100%;
+}
+.pet-image-container {
+    width: 100%; display: flex; justify-content: center; align-items: center;
+    background: radial-gradient(circle, rgba(255, 230, 200, 0.6) 0%, rgba(255, 255, 255, 0) 70%); 
+    padding: 10px; margin-bottom: 15px; border-radius: 50%;
+}
+.pet-stage-lg { 
+    width: 240px; height: 240px; object-fit: contain; 
+    filter: drop-shadow(0 10px 15px rgba(255,107,107,0.3)); 
+    animation: floatBreath 3s ease-in-out infinite; 
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    cursor: pointer;
+}
+.pet-stage-lg:active { transform: scale(0.9); }
+@keyframes floatBreath { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+/* 并排布局 */
+.info-row { display: flex; gap: 15px; width: 100%; margin-bottom: 20px; box-sizing: border-box; }
+.info-half { flex: 1; display: flex; flex-direction: column; justify-content: center; height: 80px; box-sizing: border-box; min-width: 0; }
+
+.setting-box { background: #FFF3E0; padding: 10px 15px; border-radius: 12px; border: 1px solid #FFE0B2; }
+.exp-container { background: #FFF8E1; padding: 10px 15px; border-radius: 16px; border: 1px solid #FFE0B2; }
+.exp-bar-bg { background: #FFE0B2; height: 12px; border-radius: 10px; overflow: hidden; margin-top: 5px; }
+.exp-bar-fill { height: 100%; background: linear-gradient(90deg, #FF8A65, #FF5252); width: 0%; transition: width 0.6s ease-out; }
+
+.history-box { 
+    width: 100%; border-top: 2px dashed #FFCCBC; padding-top: 20px; 
+    flex: 1; overflow-y: auto; 
+    min-height: 150px; 
+    max-height: 200px; 
+}
+.history-item { 
+    display: flex; justify-content: space-between; align-items: center; 
+    padding: 10px 0; border-bottom: 1px solid #FFF3E0; font-size: 15px; color: #6D4C41; 
+}
+.history-item.revoked {
+    text-decoration: line-through;
+    color: #aaa !important;
+}
+.history-item.revoked span { color: #aaa !important; }
+
+.btn-revoke {
+    background: #FFEBEE; color: #D32F2F; border: none; padding: 2px 8px; border-radius: 4px;
+    font-size: 12px; cursor: pointer; margin-left: 10px;
+}
+.btn-revoke:hover { background: #FFCDD2; }

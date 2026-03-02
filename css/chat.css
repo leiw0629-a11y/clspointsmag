@@ -1,0 +1,237 @@
+/* ================= 视觉 1:1 还原修复 ================= */
+
+/* 强制统一：学生、小组、班级列表高度与风格 */
+#ana_target_list .student-card {
+    height: 48px !important;              /* 统一锁定高度 */
+    min-height: 48px !important;
+    padding: 0 12px !important;
+    margin-bottom: 8px !important;
+    background-color: #FFFBF7 !important; /* 统一使用飞虎队背景色 */
+    border: 1px solid #FFF3E0 !important; /* 统一浅橙色边框 */
+    display: flex !important;
+    align-items: center !important;
+    border-radius: 12px !important;
+}
+
+#ana_target_list .student-card:hover, 
+#ana_target_list .student-card.active {
+    background-color: #FFF3E0 !important;
+    transform: translateX(3px);           /* 保持轻微位移反馈 */
+}
+
+/* 统一头像圆圈样式 */
+#ana_target_list .rank-badge {
+    width: 32px !important;
+    height: 32px !important;
+    background-color: #FFF3E0 !important; /* 统一头像背景色 */
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-right: 10px !important;
+    flex-shrink: 0 !important;
+}
+
+/* 3. 针对图片和 Emoji 的统一对齐 */
+#ana_target_list .rank-badge img, 
+#ana_target_list .rank-badge .pet-avatar {
+    width: 22px !important;               /* 锁定内容比例 */
+    height: 22px !important;
+    object-fit: contain !important;
+    display: block !important;
+    line-height: 1 !important;            /* 消除行高导致的偏移 */
+    margin: 0 !important;
+}
+
+/* 4. 文字样式优化 */
+#ana_target_list .card-name {
+    font-size: 14px !important;
+    font-weight: bold !important;
+    color: #5D4037 !important;
+}
+
+/* 5. 顶部 Tab 切换按钮样式（让它更有点击感） */
+.ana-tab {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    color: #8D6E63;
+    padding: 5px 10px;
+    border-radius: 20px;
+    transition: all 0.2s;
+}
+
+.ana-tab.active {
+    color: #FF6B6B;
+    background: #FFF0F0;
+}
+
+/* 同时微调上方卡片区域的下边距 */
+/* 顶部卡片网格：缩小下边距 */
+/* 顶部卡片网格容器 */
+.chat_cards_grid {
+    display: flex !important;
+    gap: 15px !important;
+    margin-bottom: 15px !important;
+    align-items: flex-start !important; /* 核心：防止子卡片被纵向拉伸 */
+}
+
+/* 顶部卡片：1:1 物理缩小高度，并让字体变大变粗 */
+.chat_stat_card {
+    flex: 1 !important;
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    padding: 0 15px !important;
+    height: 52px !important;           /* 略微微调高度以适配大字号 */
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    border: 1px solid #FFF5EE !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02) !important;
+    box-sizing: border-box !important;
+}
+
+/* 图标圆圈：适配小高度卡片 */
+.chat_icon_circle {
+    width: 34px !important;            /* 从 36px 进一步缩小到 32px */
+    height: 34px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 18px !important;        /* Emoji 同步微缩 */
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+}
+
+/* 如果内部有 span 标签，也确保其居中 */
+.chat_icon_circle span {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* 不同主题的图标背景色 (适配你代码中的 class) */
+.chat_theme_purple .chat_icon_circle { background: #F3E5F5 !important; color: #7B1FA2 !important; }
+.chat_theme_orange .chat_icon_circle { background: #FFF3E0 !important; color: #E65100 !important; }
+.chat_theme_green .chat_icon_circle { background: #E8F5E9 !important; color: #2E7D32 !important; }
+
+/* 文字区域 */
+/* 文字区域：紧凑排列 */
+/* 文字区域：强制同一行显示并优化字体 */
+.chat_card_info {
+    display: flex !important;
+    flex-direction: row !important;    /* 核心修改：改为横向排列 */
+    align-items: baseline !important;  /* 底部对齐，视觉更专业 */
+    gap: 8px !important;
+    font-family: 'Nunito', 'PingFang SC', 'Microsoft YaHei', sans-serif !important;
+}
+.chat_card_label {
+    font-size: 13px !important;        /* 稍微加大，更容易阅读 */
+    color: #8D6E63 !important;
+    font-weight: 600 !important;       /* 中等加粗 */
+    white-space: nowrap !important;
+}
+
+.chat_card_value {
+    font-size: 20px !important;        /* 显著变大 */
+    font-weight: 900 !important;       /* 极粗，突出重点数值 */
+    color: #5D4037 !important;
+    letter-spacing: -0.5px !important; /* 紧凑数字间距 */
+    line-height: 1 !important;
+}
+
+
+/* 图表区域整体布局：并排平分 */
+/* 图表容器：向上靠近统计栏，同时保持底部撑满 */
+/* 图表布局：微调顶部边距 */
+.chat_charts_layout {
+    display: flex !important;
+    gap: 15px !important;
+    flex: 1 !important;          /* 关键：占据父级剩余空间 */
+    min-height: 0 !important;    /* 关键：允许子元素溢出/撑开 */
+    width: 100% !important;
+    margin-top: 0 !important;
+}
+
+/* 单个图表盒子：各占一半 */
+.chat_chart_box {
+    flex: 1 !important; 
+    display: flex !important;
+    flex-direction: column !important; /* 让 header 和 content 纵向排列 */
+    background: #ffffff !important;
+    border-radius: 16px !important;
+    border: 1px solid #FFF5EE !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02) !important;
+    overflow: hidden !important;
+}
+
+/* 图表头部标题栏 */
+.chat_box_header {
+    padding: 12px 20px !important;
+    background: #FFFBF7 !important; /* 使用飞虎队同款浅色背景 */
+    border-bottom: 1px solid #FFF3E0 !important;
+    font-weight: bold !important;
+    color: #E65100 !important;
+    font-size: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+/* 找到并修改这部分 */
+.chat_chart_content {
+    flex: 1 !important;
+    width: 100% !important;
+    /* padding: 15px !important;  <-- 删除或改为 0 */
+    padding: 0 !important; /* 必须为 0 才能彻底撑满 */
+    box-sizing: border-box !important;
+    min-height: 300px !important; /* 适当调高基础高度 */
+    position: relative !important; /* 确保 ECharts 定位正确 */
+}
+
+.chart-action-btn {
+    background: #fff;
+    border: 1px solid #FFCCBC;
+    color: #FF7043;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 1. 导出合并图按钮 */
+.chart-action-btn.btn-export {
+    background: #4CAF50 !important;
+    color: white !important;
+    border: none !important;
+}
+.chart-action-btn.btn-export:hover {
+    background: #43A047 !important; /* 仅变色，删除了 transform */
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+}
+
+/* 2. 新增学生按钮 */
+.chart-action-btn.btn-add-stu {
+    background: #4ECDC4 !important;
+    color: white !important;
+    border: none !important;
+}
+.chart-action-btn.btn-add-stu:hover {
+    background: #45B7AF !important; /* 仅变色，删除了 transform */
+}
+
+/* 3. 新建小组按钮 */
+.chart-action-btn.btn-new-grp {
+    background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%) !important;
+    color: white !important;
+    border: none !important;
+}
+.chart-action-btn.btn-new-grp:hover {
+    filter: brightness(1.1); /* 仅亮度变化，删除了 transform */
+    box-shadow: 0 4px 12px rgba(255, 94, 98, 0.4);
+}

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+	<!-- 下面这行代码是专门给 360/QQ 浏览器看的 -->
+    <!-- 强制开启“极速模式”(Webkit内核)，禁止自动切回 IE -->
+    <meta name="renderer" content="webkit">
+    <meta name="force-rendering" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>萌宠成绩养成记 - 教师端</title>
+	<link rel="stylesheet" href="css/v2-style.css">
+	<link rel="stylesheet" href="css/group-detail.css">
+	<link rel="stylesheet" href="css/chat.css">
+    <link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/v2-cfg.css">
+	<link rel="stylesheet" href="css/upd-bth.css">
+	<link rel="stylesheet" href="css/shop.css">
+	<link rel="stylesheet" href="css/lock.css">
+	<link rel="stylesheet" href="css/class_msg.css">
+	<link rel="stylesheet" href="css/stu-detail.css">
+	<link rel="stylesheet" href="css/batch-feed.css">
+	<link rel="stylesheet" href="css/gallery.css">
+	
+	<style>
+        <!-- /* 临时的修正样式，建议移入 style.css */ -->
+        <!-- .main-container { -->
+            <!-- display: flex; /* 确保是 flex 布局 */ -->
+            <!-- gap: 20px; -->
+            <!-- height: calc(100vh - 100px); /* 给容器高度，防止撑破 */ -->
+            <!-- overflow: hidden;  -->
+            <!-- padding-bottom: 20px; -->
+        <!-- } -->
+	</style>
+</head>
+<body>
+
+    <div class="header">
+        <h1 id="mainTitle">萌宠成绩养成记</h1>
+        <!-- 极简版工具栏 -->
+     <div class="new-toolbar">
+        
+        <!-- 左侧：管理组 (极简文字，鼠标放上去才有背景) -->
+        <div class="new-group">
+            <button class="new-btn-ghost" onclick="openBaseConfigModal()">⚙️ 设置</button>
+            <button class="new-btn-ghost" onclick="openClassMgrModal()">🏫 班级</button>
+            <div class="new-line"></div>
+            <button class="new-btn-ghost" onclick="openAnalysisModal()">📊 分析</button>
+            <button class="new-btn-ghost" onclick="openLogModal()">📝 日志</button>
+        </div>
+
+        <!-- 中间：玩法组 (白底+投影，清爽) -->
+        <div class="new-group">
+            <button class="new-btn-white" onclick="openGalleryModal()">🖼️ 图鉴</button>
+            <button class="new-btn-white" onclick="openShopModal()">🎁 商城</button>
+            <!-- 核心按钮：橙色渐变 -->
+            <button class="new-btn-main" onclick="openBatchModal()">⚡ 批量喂养</button>
+        </div>
+
+        <!-- 右侧：数据组 (彩色胶囊，显眼但好看) -->
+        <div class="new-group right-align">
+            <button class="new-btn-white" onclick="triggerImport()">📂 导入</button>
+            <input type="file" id="importFile" hidden accept=".json" onchange="handleImport(this)">
+            
+            <!-- 保存：青色渐变 -->
+            <button class="new-btn-save" onclick="exportDataWithPicker()">💾 保存</button>
+            <!-- 锁屏：粉红渐变 -->
+            <button class="new-btn-lock" onclick="manualLock()">🔒 锁屏</button>
+        </div>
+
+    </div>
+    </div>
+
+    <div class="main-container">
+        
+        <div class="ranking-panel">
+            <div class="panel-header v2-rank-header-row">
+                <span>🏆 小组PK榜</span>
+            </div>
+            <div class="v2-popover-filter" id="rankFilterPopover">
+                <div class="v2-filter-tags">
+                    <div class="v2-filter-tag active" onclick="setRankTime('all', this)">累计总榜</div>
+                    <div class="v2-filter-tag" onclick="setRankTime('month', this)">本月新增</div>
+                    <div class="v2-filter-tag" onclick="setRankTime('week', this)">本周新增</div>
+                    <div class="v2-filter-tag" onclick="setRankTime('custom', this)">自定义</div>
+                </div>
+                <div id="rankCustomDate" style="display:none; margin-top:8px;">
+                    <div class="v2-filter-date-row">
+                        <input type="date" id="rankStartDate" class="v2-filter-date-input">
+                        <span style="color:#ccc">-</span>
+                        <input type="date" id="rankEndDate" class="v2-filter-date-input">
+                    </div>
+                </div>
+                <div style="margin-top:10px; text-align:right;">
+                    <button class="action-btn" onclick="applyRankFilter()">确定</button>
+                </div>
+            </div>
+            <div class="student-list" id="rankingList"></div>
+			
+        </div>
+
+        <div class="list-panel">
+            <div class="panel-header" style="display:flex; align-items:center;">
+                <div class="v2-header-left-tools">
+                    <select id="classSelect" class="v2-filter-badge-select" onchange="renderMainTable(); applyRankFilter();">
+                        <option value="all">全部班级</option>
+                    </select>
+                    
+                    <div class="v2-time-wrapper">
+                        <select id="timeSelect"  class="v2-filter-badge-select" style="min-width:105px;" onchange="handleTimeChange()">
+                            <option value="all">🕒全部时间</option>
+                            <option value="week">📅近一周</option>
+                            <option value="month">🌙近一月</option>
+                            <option value="year">⭐近一年</option>
+                            <option value="custom">⚙️自定义...</option>
+                        </select>
+                        <div id="customDateArea" class="v2-custom-date-popup">
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="date" id="startDate" class="v2-filter-date-input" style="width:105px;">
+                                <span style="color:#ccc">-</span>
+                                <input type="date" id="endDate" class="v2-filter-date-input" style="width:105px;">
+                                <button class="action-btn" style="padding:2px 8px; font-size:12px; white-space:nowrap;" onclick="applyCustomDate()">确定</button>
+                            </div>
+                        </div>
+                    </div>
+					<!--filterTableBySearch在tablejs中-->
+                    <input type="text" id="searchInput" class="v2-search-capsule" placeholder="搜姓名..." oninput="filterTableBySearch()">
+                </div>
+
+                <div id="currentClassStatus" class="v2-status-badge">
+                    <span id="statusText">全部班级 | 全部时间</span>
+                </div> 
+                
+                <span id="configDisplay" style="margin-left: auto; font-size: 11px; color: #999; padding-right: 10px;"></span>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th width="50">排名</th>
+                            <th>姓名</th>
+                            <th>所在组</th>
+                            <th>形态称号</th>
+                            <th>等级/经验</th>
+							<th id="totalScoreHeader">总积分</th>
+							<th>可用积分</th>
+                            <th width="120">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mainTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="ana_left_panel" class="ranking-panel" style="display: none; background: #fff; flex-direction: column;">
+    
+    <div style="padding: 15px 10px 5px 10px; display: flex; align-items: center; gap: 8px;">
+         <select id="ana_sidebar_ClassSelect" class="v2-filter-badge-select" style="flex: 1;" onchange="refreshAnalysisPage()">
+            <option value="all">全部班级</option>
+         </select>
+         
+         <input type="text" id="ana_sidebar_Search" class="v2-search-capsule" style="width: 80px; padding: 0 8px; font-size: 12px; height: 32px;"  oninput="filterAnalysisList()"  placeholder="🔍 搜索">
+    </div>
+
+    <div style="display: flex; justify-content: space-around; align-items: center; padding: 10px 5px; border-bottom: 2px dashed #FFEEE4; margin-bottom: 5px;">
+        <div id="tab_ana_stu" class="ana-tab active" onclick="switchAnaTab('student')">👤 学生</div>
+        <div style="width: 1px; height: 16px; background: #FFCCBC;"></div> 
+        
+        <div id="tab_ana_grp" class="ana-tab" onclick="switchAnaTab('group')">🛡️ 小组</div>
+        <div style="width: 1px; height: 16px; background: #FFCCBC;"></div> 
+        
+        <div id="tab_ana_cls" class="ana-tab" onclick="switchAnaTab('class')">🏫 班级</div>
+    </div>
+    
+    <div class="student-list" id="ana_target_list" style="flex: 1; overflow-y: auto; padding: 0 10px 10px 10px;">
+        </div>
+</div>
+
+
+
+        <div id="ana_right_panel" class="list-panel" style="display: none;">
+            
+            <div class="panel-header" style="display: flex !important; align-items: center !important; justify-content: flex-start !important; padding: 0 15px !important; height: 60px !important;">
+    
+    <span style="font-size:18px; font-weight:800; color:#5D4037; margin-right:20px; display: flex; align-items: center;" id="ana_MainTitle">
+        📊 数据分析
+    </span>
+
+    <div style="display: flex !important; align-items: center !important; gap: 12px !important;">
+        
+        <div class="v2-time-wrapper" style="display: flex; align-items: center;">
+            <select id="ana_TimeSelect" class="v2-filter-badge-select" onchange="handleAnaTimeChange()">
+                <option value="all">🕒 全部时间</option>
+                <option value="week">📅 近一周</option>
+                <option value="month">🌙 近一月</option>
+                <option value="year">⭐ 近一年</option>
+                <option value="custom">⚙️ 自定义...</option>
+            </select>
+            <div id="ana_customDateArea" class="v2-custom-date-popup">
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <input type="date" id="ana_startDate" class="v2-filter-date-input">
+                    <span style="color:#ccc">-</span>
+                    <input type="date" id="ana_endDate" class="v2-filter-date-input">
+                    <button class="action-btn" onclick="applyAnaCustomDate()">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <button class="chart-action-btn btn-export" onclick="downloadAllCharts()" style="margin: 0 !important; vertical-align: middle;">
+            📥 导出合并图
+        </button>
+
+        <button class="action-btn" onclick="closeChatAnalysis()" style="margin: 0 !important; vertical-align: middle;">
+            🔙 返回列表
+        </button>
+    </div>
+</div>
+
+            <div style="flex:1; overflow-y:auto; padding:20px; background:#FAFAFA; display: flex; flex-direction: column;">
+                
+                <div class="chat_cards_grid">
+                    <div class="chat_stat_card chat_theme_purple">
+                        <div class="chat_icon_circle">👥</div>
+                        <div class="chat_card_info">
+                            <span class="chat_card_label" id="card_lab_1"></span>
+							<span class="chat_card_value" id="card_val_1">--</span>
+                        </div>
+                    </div>
+                    <div class="chat_stat_card chat_theme_orange">
+                        <div class="chat_icon_circle">💰</div>
+                        <div class="chat_card_info">
+                            <span class="chat_card_label">净增积分</span>
+                            <span class="chat_card_value" id="card_val_2">--</span>
+                        </div>
+                    </div>
+                    <div class="chat_stat_card chat_theme_green">
+                        <div class="chat_icon_circle">📈</div>
+                        <div class="chat_card_info">
+                            <span class="chat_card_label">积分排名</span>
+                            <span class="chat_card_value" id="card_val_3">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat_charts_layout">
+    <div class="chat_chart_box">
+        <div class="chat_box_header">📈 积分走势<button class="chart-action-btn btn-new-grp" onclick="exportSingleChart('lineChart')" style="margin-left: auto; background: #FF9800; border: none; font-size: 12px; padding: 3px 10px; color: white;">保存图片</button></div>
+        <div id="lineChart" class="chat_chart_content"></div>
+    </div>
+    
+    <div class="chat_chart_box">
+        <div class="chat_box_header">🏅 详细得分<button class="chart-action-btn btn-new-grp" onclick="exportSingleChart('barChart')" style="margin-left: auto; background: #FF9800; border: none; font-size: 12px; padding: 3px 10px; color: white;">保存图片</button></div>
+        <div id="barChart" class="chat_chart_content"></div>
+    </div>
+</div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+	<div id="app-components"></div>
+
+    <script src="components/tpl_lock.js"></script>
+    <script src="components/tpl_logs.js"></script>
+    <script src="components/tpl_gallery.js"></script>
+    <script src="components/tpl_shop.js"></script>
+    <script src="components/tpl_misc.js"></script>
+    <script src="components/tpl_class_mgr.js"></script>
+    <script src="components/tpl_group_detail.js"></script>
+	<script src="components/tpl_basicset.js"></script>
+	
+    <script src="js/script.js"></script>
+    <script src="js/logic_table.js"></script>
+    <script src="js/logic_rank.js"></script>
+    <script src="js/logic_single_feed.js"></script>
+	<script src="js/logic_batch_feed.js"></script>
+    <script src="js/logic_lock.js"></script>
+	<script src="js/logic_logs.js"></script>
+	<script src="js/logic_gallery.js"></script>
+	<script src="js/logic_shop.js"></script>
+	<script src="js/logic_class_mgr.js"></script>
+	<script src="js/logic_detail.js"></script>
+	<script src="js/logic_feed.js"></script>
+	<script src="js/logic_io.js"></script>
+	<script src="js/logic_chat.js"></script>
+	<script src="js/echarts.min.js"></script>
+	<script src="js/logic_basic.js"></script>
+    <script>
+        const container = document.getElementById('app-components');
+        let fullHtml = '';
+        if (window.AppTemplates) {
+            for (let key in window.AppTemplates) {
+                fullHtml += window.AppTemplates[key];
+            }
+        }
+        container.innerHTML = fullHtml;
+    </script>
+
+</body>
+</html>

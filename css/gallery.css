@@ -1,0 +1,10 @@
+/* ================== 进阶图鉴专用样式 ================== */
+.gallery-group { width: 100%; margin-bottom: 25px; border-bottom: 1px dashed #FFCCBC; padding-bottom: 15px; }
+.gallery-title { font-weight: bold; color: #E65100; margin-bottom: 15px; font-size: 16px; border-left: 5px solid #FF6B6B; padding-left: 10px; background: #FFF3E0; padding: 8px 10px; border-radius: 0 10px 10px 0; }
+.gallery-row { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; justify-content: center; }
+.gallery-item { display: flex; flex-direction: column; align-items: center; min-width: 100px; position: relative; }
+.gallery-img { width: 80px; height: 80px; object-fit: contain; background: #fff; border: 2px solid #FFE0B2; border-radius: 12px; padding: 5px; margin-bottom: 8px; transition: transform 0.2s; }
+.gallery-img:hover { transform: scale(1.1); border-color: #FF6B6B; }
+.gallery-level { font-size: 12px; background: #FF6B6B; color: white; padding: 2px 8px; border-radius: 10px; margin-bottom: 4px; }
+.gallery-name { font-size: 13px; color: #5D4037; font-weight: bold; text-align: center; }
+.gallery-arrow { display: flex; align-items: center; color: #FFCCBC; font-size: 20px; font-weight: bold; }

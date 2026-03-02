@@ -1,0 +1,211 @@
+/* ================== 基础设置弹窗 (v2-cfg-) 精简优化版 ================== */
+
+/* 主布局：利用 stretch 自动实现左右等高 */
+.v2-cfg-main-layout {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin: 15px 0 10px 0;
+    min-height: 300px;
+}
+
+/* 侧边栏通用基础 */
+.v2-cfg-side-left { flex: 0 0 280px; padding-right: 30px; }
+
+.v2-cfg-side-right {
+    flex: 1;
+    padding-left: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* 这里已经控制了垂直间距 */
+}
+
+/* 统一标题样式 */
+.v2-cfg-big-label {
+    display: block; 
+    font-size: 15px; 
+    font-weight: bold; 
+    color: #E65100;
+    height: 25px; 
+    line-height: 25px; 
+    margin-bottom: 15px; /* 左侧默认保留边距 */
+}
+
+/* --- [新增/修改] 强迫症对齐补丁 --- */
+/* 右侧因为有 flex gap:15px，如果标题再有 margin-bottom:15px 就会导致双倍间距。
+   去除它可以让右侧内容上移 15px，从而与左侧第一个输入框顶部对齐 */
+.v2-cfg-side-right .v2-cfg-big-label {
+    margin-bottom: 0;
+}
+
+/* 左侧输入行合并 */
+.v2-cfg-side-left .v2-cfg-row {
+    display: flex; 
+    align-items: center; 
+    margin-bottom: 15px;
+}
+
+.v2-cfg-side-left .v2-cfg-row label {
+    font-size: 14px; 
+    color: #5D4037; 
+    font-weight: 600;
+}
+
+/* 合并 input 与 select 共有属性 */
+.v2-cfg-side-left .v2-cfg-row input, 
+.v2-cfg-side-left .v2-cfg-row select {
+    width: 150px; 
+    height: 36px; 
+    border: 1px solid #FFCCBC; 
+    border-radius: 8px;
+    padding: 0 10px; 
+    background: #FFFBF7; 
+    outline: none; 
+    margin-left: auto; /* 自动靠右对齐 */
+    box-sizing: border-box;
+}
+
+/* 隐藏 Input 箭头 (合并规则) */
+.v2-cfg-side-left input::-webkit-outer-spin-button,
+.v2-cfg-side-left input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.v2-cfg-side-left input[type="number"] { -moz-appearance: textfield; }
+
+/* 右侧：标签展示区 (类似分组容器) */
+.v2-cfg-tag-area {
+    flex: 1; 
+    border: 1px solid #FFCCBC;
+    border-radius: 12px;
+    background: #ffffff;
+    padding: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 8px;
+    overflow-y: auto;
+    min-height: 120px;
+}
+
+/* 标签个体样式 */
+.v2-cfg-tag {
+    background: #FFFBF7;
+    color: #5D4037;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #FFCCBC;
+}
+
+.v2-cfg-tag .tag-del {
+    color: #FF8A65;
+    cursor: pointer;
+    font-size: 16px;
+    transition: color 0.2s;
+}
+.v2-cfg-tag .tag-del:hover { color: #D32F2F; }
+
+/* 下部：新增/Textarea 共有样式 */
+/* --- [修改] 增加高度 --- */
+.v2-cfg-input-area { 
+    height: 135px; /* 原为100px，利用上方节省的空间增加高度 */
+    flex-shrink: 0; 
+}
+
+.v2-cfg-big-textarea {
+    width: 100%; height: 100%;
+    border: 1px solid #FFCCBC;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 13px;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+}
+
+/* 装饰物与提示区 */
+.v2-cfg-divider { width: 1px; border-right: 1px dashed #FFCCBC; margin: 10px 0; }
+
+.v2-cfg-empty-hint {
+    width: 100%; text-align: center; color: #999;
+    font-size: 12px; margin-top: 30px;
+}
+
+/* 底部提示区合并 */
+.v2-cfg-bottom-hints {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+}
+
+.v2-cfg-hint-left {
+    flex: 0 0 280px;
+    font-size: 12px; color: #8D6E63;
+    background: #FFF3E0; padding: 8px 12px;
+    border-radius: 6px; border-left: 3px solid #FFB74D;
+    box-sizing: border-box;
+}
+
+.v2-cfg-hint-right {
+    flex: 1; text-align: center;
+    font-size: 12px; color: #999;
+    align-self: center;
+}
+
+/* 底部页脚 */
+.v2-cfg-footer {
+    display: flex; justify-content: center; 
+    padding-top: 15px; border-top: 1px dashed #FFEEE4;
+}
+
+/* --- [新增] 科目切换 Tab 专用样式 --- */
+/* 修改此处的样式 */
+.v2-cfg-tabs-wrapper {
+    display: flex;
+    gap: 0; /* 彻底消除间隔 */
+    /* 之前的负边距继续保留，用于吸附下方容器 */
+    margin-bottom: -16px; 
+    position: relative;
+    z-index: 2;
+}
+
+/* 未选中状态：使用较深的底色形成对比 */
+.v2-cfg-tab-btn {
+    padding: 5px 15px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid #FFCCBC;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    background: #FFF3E0; /* 默认给一个深一点的底色 */
+    color: #8D6E63;
+    margin-right: -1px; /* 消除双倍边框 */
+    transition: background 0.2s;
+}
+
+/* 选中状态：纯白背景，并覆盖下方容器边框 */
+.v2-cfg-tab-btn.active {
+    background: #ffffff !important;
+    color: #E65100;
+    font-weight: bold;
+    position: relative;
+    z-index: 3; /* 确保在最上方 */
+}
+
+.v2-cfg-tab-btn.active::after {
+    content: "";
+    position: absolute;
+    bottom: -1px; /* 往下多压 1px */
+    left: 0;
+    right: 0;
+    height: 2px; /* 增加高度确保完全遮挡 */
+    background: #ffffff;
+}
+
+/* 强制修正下方容器圆角以实现紧密贴合 */
+.v2-cfg-tag-area, .v2-cfg-big-textarea {
+    border-top-left-radius: 0 !important;
+}
+

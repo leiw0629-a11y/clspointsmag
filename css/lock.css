@@ -1,0 +1,42 @@
+/* ================= 锁屏专用样式 (Tab版) ================= */
+.lock-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(93, 64, 55, 0.4); 
+    backdrop-filter: blur(10px);
+    z-index: 9999; display: none;
+    flex-direction: column; justify-content: center; align-items: center;
+    color: white; animation: fadeIn 0.3s;
+}
+.lock-box {
+    background: white; padding: 30px; border-radius: 20px;
+    text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    width: 340px; position: relative;
+}
+.lock-tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; }
+.lock-tab-item {
+    flex: 1; padding: 10px; cursor: pointer; color: #999; font-weight: bold;
+    border-bottom: 3px solid transparent; transition: 0.3s;
+}
+.lock-tab-item.active { color: #FF6B6B; border-bottom-color: #FF6B6B; }
+.lock-content { display: none; animation: fadeIn 0.2s; }
+.lock-content.active { display: block; }
+
+.lock-avatar { font-size: 50px; margin-bottom: 15px; }
+.lock-input { 
+    width: 100%; height: 44px; border: 2px solid #eee; border-radius: 8px; 
+    text-align: center; font-size: 16px; margin-bottom: 15px; outline: none; transition: 0.3s;
+    box-sizing: border-box; 
+}
+.lock-input:focus { border-color: #FF6B6B; }
+.btn-unlock {
+    width: 100%; height: 44px; border-radius: 50px; border: none;
+    background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+    color: white; font-weight: bold; cursor: pointer;
+    box-shadow: 0 4px 10px rgba(255,107,107,0.3);
+}
+.btn-change {
+    width: 100%; height: 44px; border-radius: 50px; border: none;
+    background: linear-gradient(135deg, #4ECDC4 0%, #26A69A 100%);
+    color: white; font-weight: bold; cursor: pointer;
+    box-shadow: 0 4px 10px rgba(78, 205, 196, 0.3);
+}

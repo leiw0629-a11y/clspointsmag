@@ -1,0 +1,273 @@
+/* ================= 班级管理弹窗专用样式 (最终合并版) ================= */
+
+/* 1. 整体容器 */
+.mgr-container { display: flex; overflow: hidden; height: 500px; gap: 20px; }
+
+/* 2. 左侧侧边栏：固定 140px */
+.mgr-sidebar { 
+    flex: 0 0 140px; 
+    display: flex; 
+    flex-direction: column; 
+    background: #FAFAFA; 
+    border-radius: 12px; 
+    padding: 10px; 
+    overflow-y: auto;
+    border-right: 1px dashed #FFCCBC;
+    margin-right: 10px;
+}
+
+/* 3. 右侧主内容区：自适应 */
+.mgr-main { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    padding-left: 5px; 
+    overflow: hidden; 
+    position: relative; /* 为视图切换保留定位基准 */
+}
+
+/* 4. 左侧 Tab 按钮样式 */
+.mgr-tab-btn {
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;    
+    justify-content: center;
+    padding: 12px 5px;      
+    background: white; 
+    border-radius: 12px; 
+    margin-bottom: 10px; 
+    border: 2px solid transparent; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+    cursor: pointer; 
+    transition: all 0.2s ease; 
+    color: #5D4037;
+    font-size: 13px;        
+    text-align: center;
+}
+.mgr-tab-btn span:first-child { font-size: 20px; margin-bottom: 5px; } 
+
+.mgr-tab-btn:hover { background-color: #FFFBF7; border-color: #FFE0B2; transform: translateY(-2px); }
+.mgr-tab-btn.active { border-color: #FF6B6B; background-color: #FFF0F0; color: #E65100; box-shadow: 0 4px 10px rgba(255, 107, 107, 0.15); }
+
+/* 5. 右侧面板通用样式 */
+.mgr-panel {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+.mgr-panel.active { display: flex; animation: fadeIn 0.3s ease-in-out; }
+
+/* 面板头部标题区 */
+.panel-header-area {
+    flex-shrink: 0;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 2px dashed #FFEEE4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 面板内容滚动区 */
+.panel-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 5px; 
+}
+
+/* 侧边栏底部的小贴士区 */
+.mgr-tips-box {
+    margin-top: auto; 
+    background: #EFEBE9; 
+    padding: 12px;
+    border-radius: 8px;
+    color: #8D6E63;
+    font-size: 12px;
+    line-height: 1.6;
+    border: 1px solid #D7CCC8;
+}
+.mgr-tips-box strong { display: block; margin-bottom: 5px; color: #5D4037; }
+
+/* 核心操作按钮样式 */
+.btn-action-student {
+    border: 1px solid #29B6F6; color: #0288D1; background: white;
+    padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-right: 4px;
+}
+.btn-action-student:hover { background: #E1F5FE; }
+
+.btn-action-group {
+    border: 1px solid #FFA726; color: #EF6C00; background: white;
+    padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-right: 4px;
+}
+.btn-action-group:hover { background: #FFF3E0; }
+
+.btn-action-archive {
+    border: 1px solid transparent; color: #9E9E9E; background: transparent;
+    padding: 4px 8px; cursor: pointer; font-size: 12px;
+}
+.btn-action-archive:hover { color: #616161; background: #EEEEEE; border-radius: 6px; }
+
+/* 分组管理：双栏布局 */
+.group-mgr-layout {
+    display: flex; gap: 15px; height: 100%; overflow: hidden;
+}
+.group-col-left {
+    flex: 2; 
+    display: flex; flex-direction: column;
+    border-right: 1px solid #FFEEE4; padding-right: 10px;
+    overflow-y: auto; overflow-x: hidden;
+}
+.group-col-right {
+    flex: 3; 
+    display: flex; flex-direction: column;
+    overflow-y: auto; overflow-x: hidden;
+    background: #FFFBF7; border-radius: 8px; padding: 10px;
+}
+
+/* 内部小弹窗 (用于批量录入) */
+.inner-modal-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(255,255,255,0.9); backdrop-filter: blur(2px);
+    z-index: 20; display: flex; justify-content: center; align-items: center;
+}
+.inner-modal-box {
+    background: white; border: 2px solid #FFCCBC;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    width: 80%; max-width: 400px; border-radius: 12px; padding: 20px;
+    display: flex; flex-direction: column;
+}
+
+/* 班级管理弹窗专用样式 (最终修正版 - 表格覆盖) */
+#classMgrModal .data-table {
+    border-collapse: separate !important; /* 关键：必须分离边框，圆角才生效 */
+    border-spacing: 0 !important;         /* 消除分离后的间隙 */
+}
+#classMgrModal .data-table th {
+    background: #FFFCF5 !important;   
+    border-bottom: 2px solid #FFCCBC !important; 
+    color: #5D4037 !important;        
+    font-weight: 600 !important;
+    text-align: center;
+    vertical-align: middle;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+#classMgrModal .data-table th:first-child {
+    border-top-left-radius: 15px; 
+    border-left: 1px solid #FFF3E0; 
+}
+#classMgrModal .data-table th:last-child {
+    border-top-right-radius: 15px;
+    border-right: 1px solid #FFF3E0;
+}
+#classMgrModal .data-table td {
+    vertical-align: middle !important;
+    border-bottom: 1px solid #FFF3E0;
+}
+
+/* 分组管理 - 卡片矩阵布局样式 */
+.group-matrix-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+    gap: 15px;
+    padding: 10px 5px; 
+    overflow-y: auto;
+}
+.group-card-new {
+    background: #fff;
+    border: 1px solid #FFE0B2;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: transform 0.2s;
+	min-height: 200px;
+}
+.group-card-new:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 167, 38, 0.15);
+    border-color: #FFB74D;
+}
+.gc-header {
+    padding: 10px 15px;
+    background: #FFF8E1;
+    border-bottom: 1px solid #FFE0B2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #E65100;
+    font-weight: bold;
+    font-size: 14px;
+}
+.gc-del-btn {
+    cursor: pointer;
+    color: #FFAB91;
+    transition: color 0.2s;
+}
+.gc-del-btn:hover { color: #D32F2F; }
+.gc-body {
+    padding: 15px;
+    flex: 1;
+    font-size: 13px;
+    color: #666;
+    line-height: 1.6;
+    min-height: 60px; 
+}
+.gc-footer-btn {
+    margin: 10px 15px 15px 15px; 
+    padding: 8px 0;
+    border: 1px dashed #FFB74D;
+    background: #FFFBF7;
+    color: #F57C00;
+    text-align: center;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: bold;
+}
+.gc-footer-btn:hover {
+    background: #FFF3E0;
+    border-color: #E65100;
+}
+
+/* 分组管理：选人弹窗专用样式 (智能高度版) */
+.member-select-list {
+    min-height: 225px;  
+    max-height: 450px;  
+    overflow-y: auto;   
+    border: 1px solid #FFEEE4;
+    border-radius: 8px;
+    background: #FAFAFA;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+.member-select-item {
+    flex-shrink: 0;      
+    height: 45px;        
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    padding: 0 15px;     
+    border-bottom: 1px dashed #FFE0B2;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+}
+.member-select-item:hover {
+    background-color: #FFF8E1;
+}
+.member-select-item:last-child {
+    border-bottom: none;
+}
+.member-status-label {
+    font-size: 12px;
+    color: #999;
+    background: #eee;
+    padding: 2px 6px;
+    border-radius: 4px;
+}

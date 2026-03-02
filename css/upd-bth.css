@@ -1,0 +1,184 @@
+/* ================== 批量录入：双层控制台 (上层建筑) ================== */
+.updbth_console {
+    flex-shrink: 0; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+    margin-bottom: 15px; 
+}
+
+/* 第一层：状态与操作 */
+.updbth_layer1 {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding-bottom: 12px; 
+    border-bottom: 2px dashed #FFF3E0; 
+}
+
+.updbth_btn_select {
+    background: #fff; 
+    border: 1px solid #FFCCBC; 
+    color: #FF7043; 
+    padding: 6px 14px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-size: 13px; 
+    font-weight: bold; 
+    transition: all 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.updbth_btn_select:hover {
+    background: #FFF8E1;
+    border-color: #FFB74D;
+}
+
+/* 第二层：定量与预览 */
+.updbth_layer2 {
+    display: flex; 
+    align-items: center; 
+    background: #FFFBF7; 
+    padding: 10px 15px; 
+    border-radius: 12px; 
+    border: 1px solid #FFE0B2; 
+    gap: 15px; 
+    flex-wrap: wrap; 
+}
+
+.updbth_capsule {
+    background: white; 
+    border: 2px solid #FFCCBC; 
+    color: #E65100; 
+    padding: 4px 16px; 
+    border-radius: 20px; 
+    cursor: pointer; 
+    font-weight: bold; 
+    font-size: 14px; 
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+}
+.updbth_capsule:hover {
+    background: #FFF0F0; 
+    border-color: #FF6B6B; 
+    transform: scale(1.05) translateY(-2px); 
+    box-shadow: 0 4px 8px rgba(255,107,107,0.2);
+}
+
+.updbth_input {
+    width: 90px; 
+    height: 32px; 
+    border: 2px dashed #FFCCBC; 
+    border-radius: 8px; 
+    text-align: center; 
+    font-weight: bold; 
+    color: #E65100; 
+    font-size: 15px;
+    outline: none; 
+    background: white; 
+    transition: all 0.2s;
+}
+.updbth_input:focus {
+    border-style: solid; 
+    border-color: #FF6B6B; 
+    box-shadow: 0 0 0 2px rgba(255,107,107,0.1);
+}
+
+/* ================== 批量录入：学生卡片矩阵 ================== */
+/* 优化外层容器，加入一点微灰底色更能衬托纯白卡片 */
+.updbth_list_override {
+    padding: 15px;
+    background: #FAFAFA; 
+    border-radius: 12px;
+}
+
+/* 核心：卡片网格布局，自适应 640px 宽度 */
+.updbth_card_grid {
+    display: grid;
+    /* minmax(120px, 1fr) 意思是卡片最小120px，有富裕空间就均分，一行大概排 4-5 个 */
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    align-content: start;
+}
+
+/* 默认状态：白底、浅橙边框、长方形圆角 */
+.updbth_stu_card {
+    background: #ffffff;
+    border: 2px solid #FFE0B2;
+    border-radius: 12px;
+    padding: 12px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 弹性动画 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 悬停反馈 */
+.updbth_stu_card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 167, 38, 0.15);
+    border-color: #FFB74D;
+}
+
+/* 名字排版 */
+.updbth_stu_name {
+    font-weight: 800;
+    color: #5D4037;
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* 名字太长变省略号 */
+    flex: 1; 
+}
+
+/* 积分排版：独立的小胶囊感 */
+.updbth_stu_coin {
+    font-weight: bold;
+    color: #E65100;
+    font-size: 13px;
+    margin-left: 5px;
+    flex-shrink: 0; 
+    background: #FFF8E1;
+    padding: 2px 6px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+/* ================== 卡片选中态：动态颜色主题 ================== */
+
+/* 基础选中放大动画（共用） */
+.updbth_stu_card.selected {
+    transform: scale(1.02);
+}
+
+/* === 红色主题 (扣分模式 - 维持原有样式) === */
+.theme-neg .updbth_stu_card.selected {
+    background: #FFF0F0;
+    border-color: #FF6B6B;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
+}
+.theme-neg .updbth_stu_card.selected::after {
+    position: absolute; bottom: -1px; right: -1px;
+    background: #FF6B6B; color: white;
+    font-size: 10px; font-weight: 900; padding: 2px 6px; border-top-left-radius: 8px;
+}
+.theme-neg .updbth_stu_card.selected .updbth_stu_coin {
+    background: #FFE0B2;
+}
+
+/* === 绿色主题 (加分模式 - 同色系舒适绿) === */
+.theme-pos .updbth_stu_card.selected {
+    background: #E8F5E9;         /* 极浅的薄荷绿底色 */
+    border-color: #4CAF50;       /* 鲜明的质感绿边框 */
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+}
+.theme-pos .updbth_stu_card.selected::after {
+    position: absolute; bottom: -1px; right: -1px;
+    background: #4CAF50; color: white;
+    font-size: 10px; font-weight: 900; padding: 2px 6px; border-top-left-radius: 8px;
+}
+.theme-pos .updbth_stu_card.selected .updbth_stu_coin {
+    background: #C8E6C9;         /* 偏绿的积分胶囊底色 */
+}

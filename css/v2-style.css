@@ -1,0 +1,189 @@
+/* ================== V2 最终版：顶部工具栏与筛选样式 ================== */
+
+/* 1. 确保 Header 可以作为绝对定位的基准 */
+.panel-header {
+    position: relative; /* 关键：为了让中间的提示条能居中 */
+}
+
+/* 2. 左侧工具容器 */
+.v2-header-left-tools {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 20; /* 确保下拉框在提示条上面，能点到 */
+}
+
+/* 3. 统一的下拉框样式 (高度定死 32px) */
+.v2-filter-badge-select {
+    height: 32px; /* 强制高度 */
+    line-height: 20px; /* 修正文字垂直居中 */
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: #FFF3E0;
+    border: 1px solid #FFCCBC;
+    color: #E65100;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 0 24px 0 12px; /* 上下padding设为0，靠line-height居中 */
+    border-radius: 12px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FF6B6B'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    background-size: 16px;
+    min-width: 90px;
+}
+.v2-filter-badge-select:hover {
+    background-color: #FFE0B2;
+    border-color: #FF6B6B;
+}
+
+/* 4. 搜索框样式 (高度定死 32px，颜色加深) */
+.v2-search-capsule {
+    width: 120px;
+    height: 32px; /* 强制高度 */
+    line-height: 32px;
+    padding: 0 15px 0 32px;
+    border: 1px solid #FFCCBC;
+    border-radius: 50px;
+    background-color: #FFFBF7;
+    font-size: 13px;
+    color: #3E2723; /* 输入文字：深咖啡色，清晰 */
+    outline: none;
+    transition: all 0.2s;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FF6B6B'%3e%3cpath d='M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: 8px center;
+    background-size: 16px;
+}
+
+/* 修复搜索框文字重叠 */
+#ana_sidebar_Search {
+    width: 100px;
+    padding: 0 12px 0 30px !important; /* 左侧留出30px空间给放大镜图标 */
+    font-size: 12px;
+    height: 32px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="%23999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+    background-repeat: no-repeat;
+    background-position: 10px center; /* 图标定位在左侧10px处 */
+    border: 1px solid #FFCCBC;
+    border-radius: 16px;
+    outline: none;
+    transition: all 0.3s;
+}
+
+#ana_sidebar_Search:focus {
+    border-color: #FF9800;
+    box-shadow: 0 0 5px rgba(255,152,0,0.2);
+}
+.v2-search-capsule::placeholder {
+    color: #8D6E63; /* 占位符：深暖灰，清晰可见 */
+    opacity: 1;
+}
+.v2-search-capsule:focus {
+    width: 150px;
+    background-color: #fff;
+    border-color: #FF6B6B;
+    box-shadow: 0 2px 8px rgba(255,107,107,0.15);
+}
+
+/* ================== 中间状态胶囊 (视觉增强版) ================== */
+.v2-status-badge {
+    /* 1. 绝对定位居中 */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    
+    /* 2. 布局 */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none; /* 鼠标穿透 */
+
+    /* 3. 视觉样式升级 (关键修改) */
+    padding: 6px 20px;          /* 增加宽度，更有分量 */
+    background: #fff;           /* 改为纯白背景，更干净 */
+    border: 2px solid #FFAB91;  /* 改为2px实线，颜色加深(深橙色) */
+    border-radius: 50px;        /* 圆润胶囊 */
+    
+    color: #D84315;             /* 文字改为深砖红色，对比度更高 */
+    font-size: 15px;            /* 字体稍大 */
+    font-weight: 900;           /* 特粗字体 */
+    
+    /* 4. 增加投影 (让它浮起来，看起来更明显) */
+    box-shadow: 0 4px 10px rgba(255, 87, 34, 0.15); 
+    
+    /* 动画保持不变 */
+    animation: v2ZoomIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+@keyframes v2ZoomIn {
+    from { transform: translateX(-50%) scale(0.8); opacity: 0; }
+    to { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+/* --- (保留) 左侧气泡菜单相关样式 --- */
+.v2-rank-header-row { display: flex; justify-content: space-between; align-items: center; position: relative; }
+.v2-btn-filter-icon { background: #FFF3E0; border: 1px solid #FFCCBC; color: #FF6B6B; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; font-size: 16px; }
+.v2-btn-filter-icon:hover, .v2-btn-filter-icon.active { background: #FF6B6B; color: white; box-shadow: 0 4px 10px rgba(255,107,107,0.3); }
+.v2-popover-filter { position: absolute; top: 110%; right: -10px; width: 260px; background: #fff; border-radius: 12px; box-shadow: 0 8px 30px rgba(93, 64, 55, 0.15); border: 2px solid #FFF3E0; padding: 12px; z-index: 1000; display: none; flex-direction: column; gap: 10px; animation: v2FadeInDown 0.2s ease-out; }
+.v2-popover-filter.show { display: flex; }
+@keyframes v2FadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+.v2-filter-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.v2-filter-tag { padding: 4px 10px; background: #FAFAFA; border: 1px solid #eee; border-radius: 20px; font-size: 12px; cursor: pointer; color: #888; transition: 0.2s; }
+.v2-filter-tag:hover { background: #FFF8E1; color: #FF9800; }
+.v2-filter-tag.active { background: #FFEBEE; color: #D32F2F; border-color: #FFCDD2; font-weight: bold; }
+.v2-filter-date-row { display: flex; align-items: center; gap: 5px; margin-top: 5px; background: #FAFAFA; padding: 5px; border-radius: 8px; }
+.v2-filter-date-input { width: 100%; border: 1px solid #e0e0e0; border-radius: 6px; padding: 4px; font-size: 12px; color: #555; font-family: inherit; }
+.v2-group-rank-card { display: flex; align-items: center; padding: 12px 10px; margin-bottom: 8px; border-radius: 12px; background: linear-gradient(to right, #FFFBF7, #fff); border: 1px solid #FFF3E0; cursor: default; transition: transform 0.2s; }
+.v2-group-rank-card:hover { transform: translateX(3px); border-color: #FFCCBC; }
+.v2-group-rank-badge { width: 32px; height: 32px; flex-shrink: 0; background-image: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; margin-right: 10px; box-shadow: 0 4px 8px rgba(255, 94, 98, 0.3); }
+.v2-rank-1 .v2-group-rank-badge { background: linear-gradient(135deg, #FFD700, #FDB931); box-shadow: 0 4px 10px rgba(253, 185, 49, 0.4); }
+.v2-rank-2 .v2-group-rank-badge { background: linear-gradient(135deg, #E0E0E0, #BDBDBD); color: #616161; }
+.v2-rank-3 .v2-group-rank-badge { background: linear-gradient(135deg, #D4AF37, #C5A028); }
+.v2-group-info { flex: 1; min-width: 0; }
+.v2-group-name { font-weight: bold; color: #3E2723; font-size: 14px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v2-group-detail { font-size: 11px; color: #A1887F; display: flex; gap: 8px; }
+.v2-group-score { font-size: 16px; font-weight: 800; color: #FF6B6B; white-space: nowrap; }
+
+
+/* ================== 新增：自定义时间弹窗样式 ================== */
+
+/* 1. 时间选择器的包裹容器 (作为定位基准) */
+.v2-time-wrapper {
+    position: relative; /* 让内部绝对定位的弹窗以此为基准 */
+}
+
+/* 2. 自定义时间弹窗 (绝对定位到下方) */
+.v2-custom-date-popup {
+    display: none;       /* 默认隐藏 */
+    position: absolute;  /* 绝对定位，脱离文档流，不占位置 */
+    top: 115%;           /* 在下拉框正下方，留一点空隙 */
+    left: 0;
+    background: #fff;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #FFCCBC;
+    box-shadow: 0 4px 15px rgba(230, 81, 0, 0.15); /* 漂亮的投影 */
+    z-index: 100;        /* 保证浮在最上层 */
+    white-space: nowrap; /* 防止内部换行 */
+}
+
+/* ================== 状态胶囊跳动特效 ================== */
+
+/* 定义一个专门的动画类，用来触发动作 */
+.v2-anim-pop {
+    animation: v2PopEffect 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+/* 关键帧：Q弹跳动 (注意每一帧都要带 translate(-50%, -50%) 保持居中) */
+@keyframes v2PopEffect {
+    0%   { transform: translate(-50%, -50%) scale(1); }
+    50%  { transform: translate(-50%, -50%) scale(1.15); } /* 稍微放大一点 */
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
