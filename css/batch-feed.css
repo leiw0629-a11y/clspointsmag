@@ -21,3 +21,299 @@
     margin: 0 auto;          
     display: block;
 }
+
+/* ================== 卡片上下布局增强 ================== */
+.updbth_stu_card.batch-card-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* 姓名行和输入框之间的间距 */
+    padding: 12px 10px; /* 稍微增加一点内边距让卡片显得更饱满 */
+    height: auto; /* 覆盖可能存在的固定高度 */
+    justify-content: flex-start;
+    align-items: stretch;
+}
+
+/* 顶部：姓名和积分 */
+.batch-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* 底部：输入框外层容器 */
+.batch-input-area {
+    display: flex;
+    align-items: center;
+    background: #F9F9F9; /* 默认浅灰色背景，融入白卡片 */
+    border-radius: 8px;
+    padding: 4px 10px;
+    border: 1px solid #F0F0F0;
+    transition: all 0.2s ease;
+}
+
+/* 选中状态下，输入框容器的联动高亮（增加视觉反馈） */
+.updbth_stu_card.batch-card-layout.selected .batch-input-area {
+    background: #FFF3E0; /* 配合你原有的橙色调 */
+    border-color: #FFE0B2;
+}
+
+/* 核心输入框：彻底清空原生限制，强制居中 */
+.batch-score-input {
+    flex: 1;
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: center !important; /* 强制水平居中 */
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    outline: none;
+    font-family: inherit; 
+    cursor: text; 
+    padding: 0 !important; /* 【关键1】必须清空浏览器的原生内边距 */
+    margin: 0;
+    line-height: 1.5; /* 【关键2】给一个正常的行高，保证垂直居中不偏移 */
+}
+
+/* 占位符也必须单独声明居中对齐 */
+.batch-score-input::placeholder {
+    text-align: center !important; /* 确保占位符文字水平居中 */
+    color: #CCC;
+    font-weight: normal;
+    font-size: 12px;
+    line-height: 1.5; /* 与父元素保持一致 */
+}
+
+.updbth_stu_card.batch-card-layout.selected {
+    color: #E65100; /* 选中时文字变色 */
+    opacity: 0.8;
+}
+
+/* 实际的输入框实体 */
+.batch-score-input {
+    flex: 1;
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: right; /* 数字靠右对齐更整齐 */
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    outline: none;
+    font-family: 'Nunito', sans-serif; /* 借用你代码里的字体 */
+}
+
+/* 选中状态下输入框文字变色 */
+.updbth_stu_card.batch-card-layout.selected .batch-score-input {
+    color: #E65100;
+}
+
+/* 占位符样式 */
+.batch-score-input::placeholder {
+    color: #CCC;
+    font-weight: normal;
+    font-size: 12px;
+}
+
+/* 隐藏原生数字输入框右侧丑陋的上下小箭头 */
+.batch-score-input::-webkit-outer-spin-button,
+.batch-score-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.batch-score-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* ================== 取消新版大卡片的悬浮/选中放大效果 ================== */
+.updbth_stu_card.batch-card-layout:hover,
+.updbth_stu_card.batch-card-layout.selected,
+.updbth_stu_card.batch-card-layout:active {
+    transform: none !important; /* 强制取消放大/缩小效果 */
+}
+
+/* ================== 批量录入：双层控制台 (上层建筑) ================== */
+.updbth_console {
+    flex-shrink: 0; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+    margin-bottom: 15px; 
+}
+
+/* 第一层：状态与操作 */
+.updbth_layer1 {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding-bottom: 12px; 
+    border-bottom: 2px dashed #FFF3E0; 
+}
+
+.updbth_btn_select {
+    background: #fff; 
+    border: 1px solid #FFCCBC; 
+    color: #FF7043; 
+    padding: 6px 14px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-size: 13px; 
+    font-weight: bold; 
+    transition: all 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.updbth_btn_select:hover {
+    background: #FFF8E1;
+    border-color: #FFB74D;
+}
+
+/* 第二层：定量与预览 */
+.updbth_layer2 {
+    display: flex; 
+    align-items: center; 
+    background: #FFFBF7; 
+    padding: 10px 15px; 
+    border-radius: 12px; 
+    border: 1px solid #FFE0B2; 
+    gap: 15px; 
+    flex-wrap: wrap; 
+}
+
+.updbth_capsule {
+    background: white; 
+    border: 2px solid #FFCCBC; 
+    color: #E65100; 
+    padding: 4px 16px; 
+    border-radius: 20px; 
+    cursor: pointer; 
+    font-weight: bold; 
+    font-size: 14px; 
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+}
+.updbth_capsule:hover {
+    background: #FFF0F0; 
+    border-color: #FF6B6B; 
+    transform: scale(1.05) translateY(-2px); 
+    box-shadow: 0 4px 8px rgba(255,107,107,0.2);
+}
+
+.updbth_input {
+    width: 90px; 
+    height: 32px; 
+    border: 2px dashed #FFCCBC; 
+    border-radius: 8px; 
+    text-align: center; 
+    font-weight: bold; 
+    color: #E65100; 
+    font-size: 15px;
+    outline: none; 
+    background: white; 
+    transition: all 0.2s;
+}
+.updbth_input:focus {
+    border-style: solid; 
+    border-color: #FF6B6B; 
+    box-shadow: 0 0 0 2px rgba(255,107,107,0.1);
+}
+
+/* ================== 批量录入：学生卡片矩阵 ================== */
+/* 优化外层容器，加入一点微灰底色更能衬托纯白卡片 */
+.updbth_list_override {
+    padding: 15px;
+    background: #FAFAFA; 
+    border-radius: 12px;
+}
+
+/* 核心：卡片网格布局，自适应 640px 宽度 */
+.updbth_card_grid {
+    display: grid;
+    /* minmax(120px, 1fr) 意思是卡片最小120px，有富裕空间就均分，一行大概排 4-5 个 */
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    align-content: start;
+}
+
+/* 默认状态：白底、浅橙边框、长方形圆角 */
+.updbth_stu_card {
+    background: #ffffff;
+    border: 2px solid #FFE0B2;
+    border-radius: 12px;
+    padding: 12px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 弹性动画 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 悬停反馈 */
+.updbth_stu_card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 167, 38, 0.15);
+    border-color: #FFB74D;
+}
+
+/* 名字排版 */
+.updbth_stu_name {
+    font-weight: 800;
+    color: #5D4037;
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* 名字太长变省略号 */
+    flex: 1; 
+}
+
+/* 积分排版：独立的小胶囊感 */
+.updbth_stu_coin {
+    font-weight: bold;
+    color: #E65100;
+    font-size: 13px;
+    margin-left: 5px;
+    flex-shrink: 0; 
+    background: #FFF8E1;
+    padding: 2px 6px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+/* ================== 卡片选中态：动态颜色主题 ================== */
+
+/* 基础选中放大动画（共用） */
+.updbth_stu_card.selected {
+    transform: scale(1.02);
+}
+
+/* === 红色主题 (扣分模式 - 维持原有样式) === */
+.theme-neg .updbth_stu_card.selected {
+    background: #FFF0F0;
+    border-color: #FF6B6B;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
+}
+.theme-neg .updbth_stu_card.selected::after {
+    position: absolute; bottom: -1px; right: -1px;
+    background: #FF6B6B; color: white;
+    font-size: 10px; font-weight: 900; padding: 2px 6px; border-top-left-radius: 8px;
+}
+.theme-neg .updbth_stu_card.selected .updbth_stu_coin {
+    background: #FFE0B2;
+}
+
+/* === 绿色主题 (加分模式 - 同色系舒适绿) === */
+.theme-pos .updbth_stu_card.selected {
+    background: #E8F5E9;         /* 极浅的薄荷绿底色 */
+    border-color: #4CAF50;       /* 鲜明的质感绿边框 */
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+}
+.theme-pos .updbth_stu_card.selected::after {
+    position: absolute; bottom: -1px; right: -1px;
+    background: #4CAF50; color: white;
+    font-size: 10px; font-weight: 900; padding: 2px 6px; border-top-left-radius: 8px;
+}
+.theme-pos .updbth_stu_card.selected .updbth_stu_coin {
+    background: #C8E6C9;         /* 偏绿的积分胶囊底色 */
+}
