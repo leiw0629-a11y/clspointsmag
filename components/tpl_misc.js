@@ -121,9 +121,9 @@ window.AppTemplates.misc = `
             <div style="font-size: 14px; color: #8D6E63; font-weight: bold;">分值:</div>
             
             <div style="display: flex; gap: 10px; align-items: center;">
-                <div class="updbth_capsule" onclick="document.getElementById('updbth_globalScore').value=5; updbth_updateGlobalPreview();">5分</div>
-				<div class="updbth_capsule" onclick="document.getElementById('updbth_globalScore').value=10; updbth_updateGlobalPreview();">10分</div>
-				<div class="updbth_capsule" onclick="document.getElementById('updbth_globalScore').value=15; updbth_updateGlobalPreview();">15分</div>
+                <div class="updbth_capsule" onclick="setGlobalScoreFast(5)">5分</div>
+				<div class="updbth_capsule" onclick="setGlobalScoreFast(10)">10分</div>
+				<div class="updbth_capsule" onclick="setGlobalScoreFast(15)">15分</div>
                 
                 <div style="width: 1px; height: 18px; background: #FFCCBC; margin: 0 5px;"></div>
                 
@@ -140,26 +140,51 @@ window.AppTemplates.misc = `
     <div class="batch-list-container updbth_list_override" style="flex: 1; margin-bottom: 0; border: 1px solid #FFEEE4; overflow-y: auto; overflow-x: hidden; max-height: none;">
 		<div id="updbth_cardContainer" class="updbth_card_grid">
 			
-			<div class="updbth_stu_card">
-				<span class="updbth_stu_name">程羽</span>
-				<span class="updbth_stu_coin">🪙62</span>
+			<div class="updbth_stu_card batch-card-layout">
+				<div class="batch-card-header">
+					<span class="updbth_stu_name">程羽</span>
+					<span class="updbth_stu_coin">🪙62</span>
+				</div>
+				<div class="batch-input-area">
+					<span class="batch-input-prefix">分值</span>
+					<input type="number" class="batch-score-input" placeholder="跟随全局">
+				</div>
+			</div>
+
+			<div class="updbth_stu_card batch-card-layout selected">
+				<div class="batch-card-header">
+					<span class="updbth_stu_name">林小明</span>
+					<span class="updbth_stu_coin">🪙85</span>
+				</div>
+				<div class="batch-input-area">
+					<span class="batch-input-prefix">分值</span>
+					<input type="number" class="batch-score-input" value="15">
+				</div>
+			</div>
+
+			<div class="updbth_stu_card batch-card-layout">
+				<div class="batch-card-header">
+					<span class="updbth_stu_name">欧阳夏丹</span>
+					<span class="updbth_stu_coin">🪙12</span>
+				</div>
+				<div class="batch-input-area">
+					<span class="batch-input-prefix">分值</span>
+					<input type="number" class="batch-score-input" placeholder="跟随全局">
+				</div>
+			</div>
+
+			<div class="updbth_stu_card batch-card-layout selected">
+				<div class="batch-card-header">
+					<span class="updbth_stu_name">张三</span>
+					<span class="updbth_stu_coin">🪙105</span>
+				</div>
+				<div class="batch-input-area">
+					<span class="batch-input-prefix">分值</span>
+					<input type="number" class="batch-score-input" value="5">
+				</div>
 			</div>
 			
-			<div class="updbth_stu_card selected">
-				<span class="updbth_stu_name">林小明</span>
-				<span class="updbth_stu_coin">🪙85</span>
-			</div>
-			
-			<div class="updbth_stu_card">
-				<span class="updbth_stu_name">欧阳夏丹</span>
-				<span class="updbth_stu_coin">🪙12</span>
-			</div>
-			
-			<div class="updbth_stu_card">
-				<span class="updbth_stu_name">张三</span>
-				<span class="updbth_stu_coin">🪙105</span>
-			</div>
-			</div>
+		</div>
 	</div>
 	
 </div>
