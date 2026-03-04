@@ -1,5 +1,5 @@
 /**
- * 1. 打开批量喂养弹窗 (全新卡片交互版)
+ * 1. 打开批量喂养弹窗 (独立输入框新版)
  */
 function openBatchModal() {
     if (students.length === 0) return alert("请先导入名单");
@@ -21,7 +21,6 @@ function openBatchModal() {
 
     renderBatchSubjectUI();
 
-    // --- 核心改动：渲染卡片矩阵 ---
     const container = document.getElementById('updbth_cardContainer');
     if (!container) return;
     container.innerHTML = ''; // 清空旧数据
@@ -30,17 +29,18 @@ function openBatchModal() {
         return { data: stu, originalIdx: idx };
     });
 
-    // 2. 按班级过滤
+    // 按班级过滤
     if (selectedClass !== 'all') {
         displayList = displayList.filter(item => item.data.className === selectedClass);
     }
 
-    // 3. 按姓名拼音 A-Z 排序 (利用浏览器的 zh-CN 本地化对比)
+    // 按姓名拼音 A-Z 排序
     displayList.sort((a, b) => {
         return a.data.name.localeCompare(b.data.name, 'zh-CN');
     });
 	
     let visibleCount = 0;
+    
     // 4. 循环渲染排好序的列表
     displayList.forEach(item => {
         visibleCount++;
@@ -50,17 +50,51 @@ function openBatchModal() {
         const cp = stu.currentPoints === undefined ? (stu.totalPoints || 0) : stu.currentPoints;
         
         const card = document.createElement('div');
-        card.className = 'updbth_stu_card'; 
-        card.dataset.idx = realIdx;       // 存入真实索引
+        card.className = 'updbth_stu_card batch-card-layout'; 
+        card.dataset.idx = realIdx;       
         card.dataset.name = stu.name;
 
         card.innerHTML = `
-            <span class="updbth_stu_name">${stu.name}</span>
-            <span class="updbth_stu_coin">🪙${cp}</span>
+            <div class="batch-card-header">
+                <span class="updbth_stu_name">${stu.name}</span>
+                <span class="updbth_stu_coin">🪙${cp}</span>
+            </div>
+            <div class="batch-input-area">
+                <input type="number" class="batch-score-input" placeholder="请输入分值">
+            </div>
         `;
 
-        card.onclick = function() {
+        // 获取刚刚生成的输入框
+        const inputEl = card.querySelector('.batch-score-input');
+
+        // 【新增：监听输入框的打字事件】
+        inputEl.addEventListener('input', function() {
+            if (this.value.trim() !== '') {
+                // 只要里面有数字，强制变为选中状态
+                card.classList.add('selected');
+            } else {
+                // 如果数字被删光了，自动取消选中
+                card.classList.remove('selected');
+            }
+            updbth_updateSelectedCount(); // 实时更新顶部已选人数
+        });
+
+        // 【修改：卡片的点击事件】
+        card.onclick = function(e) {
+            // 如果点的是输入框本身，直接放行，不要触发任何卡片的选中/取消逻辑
+            if (e.target.tagName.toLowerCase() === 'input') {
+                return; 
+            }
+            
+            // 如果点的是卡片其他区域，正常切换选中/取消选中状态
             this.classList.toggle('selected');
+            
+            // 【顺手优化 UX】：如果老师通过点击卡片空白处“取消选中”了该学生，
+            // 为了防止下次选中时里面还有上次遗留的数字，顺手帮她把输入框清空
+            if (!this.classList.contains('selected')) {
+                inputEl.value = '';
+            }
+            
             updbth_updateSelectedCount(); 
         };
 
@@ -156,7 +190,7 @@ function renderBatchSubjectUI() {
 }
 
 /**
- * 处理批量左侧科目点击逻辑 (全新卡片适配版)
+ * 处理批量窗口左侧科目点击逻辑 (全新卡片适配版)
  */
 function handleBatchSubjectClick(name, type) {
     currentBatchSubData = { name, type };
@@ -217,7 +251,7 @@ function handleBatchSubjectClick(name, type) {
 }
 
 /**
- * 6. 全选 / 反选 所有学生卡片
+ * 6. 全选 / 反选 所有学生卡片 (深度联动版)
  */
 function updbth_toggleAllCards() {
     const allCards = document.querySelectorAll('.updbth_stu_card');
@@ -225,77 +259,105 @@ function updbth_toggleAllCards() {
     
     if (allCards.length === 0) return; // 如果没有卡片，直接返回
 
-    // 判断当前是否已经处于“全选”状态
+    // 1. 获取顶部全局输入框的有效分值
+    const globalInput = document.getElementById('updbth_globalScore');
+    let globalVal = '';
+    if (globalInput && globalInput.value) {
+        let num = parseInt(globalInput.value.replace(/[^0-9]/g, ''), 10);
+        if (!isNaN(num) && num > 0) {
+            globalVal = num;
+        }
+    }
+
+    // 2. 判断当前是否已经处于“全选”状态
     const isAllSelected = (allCards.length === selectedCards.length);
 
+    // 3. 核心遍历执行
     allCards.forEach(card => {
+        const inputEl = card.querySelector('.batch-score-input');
+        
         if (isAllSelected) {
-            // 如果已经全选了，就全部反选（清空）
+            // 【反选/清空】：如果已经全选了，就全部取消选中，并强制清空输入框
             card.classList.remove('selected');
+            if (inputEl) inputEl.value = '';
         } else {
-            // 只要没全选，就强制全部选中
+            // 【全选/填充】：只要没全选，就强制全部选中
             card.classList.add('selected');
+            // 如果全局有分值，直接帮老师把所有的框填满
+            if (inputEl && globalVal !== '') {
+                inputEl.value = globalVal;
+            }
         }
     });
 
-    // 联动更新顶部的“已选 X 人” UI
+    // 4. 联动更新顶部的“已选 X 人” UI
     updbth_updateSelectedCount();
 }
 
 /**
- * 4. 提交批量喂养 (全新卡片选中版)
+ * 4. 提交批量喂养 (全新独立卡片取值版)
  */
 function submitBatchFeed() {
     // 1. 校验科目
     if (!currentBatchSubData) return showToast("⚠️ 请先选择科目！");
 
-    // 2. 校验分数
-    const scoreInput = document.getElementById('updbth_globalScore');
-    const scoreStr = scoreInput ? scoreInput.value : '';
-    if (!scoreStr) {
-		alert('请先设定本次分值！');
-		return;
-	}
-    
-    let rawVal = Math.abs(parseInt(scoreStr));
-    if (rawVal === 0) {
-		alert('分数不能为0！');
-		return;
-	}
-
-    // 3. 校验选中的学生
+    // 2. 校验是否选人了
     const selectedCards = document.querySelectorAll('.updbth_stu_card.selected');
     if (selectedCards.length === 0){
-		alert('请至少勾选一名学生！');
-		return;
-	} 
+        alert('请至少勾选一名学生！');
+        return;
+    } 
+
+    // 3. 【核心新增：防呆前置校验】
+    // 防止老师点了“全选”，但是没有输入全局分值，导致卡片空着就被提交
+    let hasEmptyScore = false;
+    selectedCards.forEach(card => {
+        const inputEl = card.querySelector('.batch-score-input');
+        const val = inputEl ? parseInt(inputEl.value, 10) : 0;
+        if (isNaN(val) || val <= 0) {
+            hasEmptyScore = true;
+            // 可以顺手给这个空框加个红色闪烁提示，这里用最简单的聚焦
+            if(inputEl) inputEl.focus(); 
+        }
+    });
+
+    if (hasEmptyScore) {
+        alert('⚠️发现被选中的学生中存在空分值或无效分值，请检查！');
+        return; // 拦截提交
+    }
 
     // 4. 获取归属日期
     const dateInput = document.getElementById('batchFeedDate');
     const targetDate = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
     
-    // 5. 确定最终分值（根据科目类型自动加减）
-    let finalScore = (currentBatchSubData.type == -1) ? -rawVal : rawVal;
-
     let count = 0; 
     let levelUpCount = 0;
     
-    // 6. 核心循环：只给带 selected 的卡片加分
+    // 5. 【核心逻辑：遍历选中卡片，各自计算独立分值】
     selectedCards.forEach(card => {
-        const idxStr = card.dataset.idx; // 我们在 open 时存入的 idx
-        if (idxStr !== undefined) {
+        const idxStr = card.dataset.idx; 
+        const inputEl = card.querySelector('.batch-score-input');
+        
+        if (idxStr !== undefined && inputEl) {
             const idx = parseInt(idxStr);
             const oldLevel = students[idx].level;
             
+            // 提取该学生的专属分值 (前面已经拦截过空值了，这里绝对是安全正整数)
+            const rawVal = parseInt(inputEl.value, 10);
+            
+            // 根据科目类型，后台赋予正负号
+            let finalScore = (currentBatchSubData.type == -1) ? -rawVal : rawVal;
+
             // 调用核心加分函数
             addPoints(idx, finalScore, currentBatchSubData.name, targetDate);
             count++; 
+            
             // 记录升级人数
             if (students[idx].level > oldLevel) levelUpCount++;
         }
     });
     
-    // 7. 收尾：保存、刷新、提示、关窗
+    // 6. 收尾：保存、刷新、提示、关窗
     if(count > 0) { 
         saveData(); 
         refreshUI(); 
@@ -356,9 +418,64 @@ function updbth_updateGlobalPreview() {
     previewEl.innerHTML = html;
 }
 
-// 批量喂养的实时预览监听 (全新全局版)
+// 批量喂养的实时预览与向下同步监听 (全新全局版)
 document.addEventListener('input', function(e){
     if(e.target.id === 'updbth_globalScore') {
-        updbth_updateGlobalPreview();
+        // 先清理非数字输入，保证全局框里也是干净的
+        e.target.value = e.target.value.replace(/[^0-9]/g, ''); 
+        
+        updbth_updateGlobalPreview(); // 原有的：更新右上角预览
+        updbth_syncGlobalScore();     // 【新增】：智能同步到下方卡片
     }
 });
+
+/**
+ * 新增：将全局分数智能同步到下方卡片
+ */
+function updbth_syncGlobalScore() {
+    const globalInput = document.getElementById('updbth_globalScore');
+    if (!globalInput) return;
+
+    // 提取并清洗全局分数
+    let rawStr = globalInput.value.replace(/[^0-9]/g, '');
+    let num = parseInt(rawStr, 10);
+    let isValidScore = !isNaN(num) && num > 0;
+    let finalValue = isValidScore ? num : '';
+
+    // 获取卡片集合
+    const allCards = document.querySelectorAll('.updbth_stu_card');
+    const selectedCards = document.querySelectorAll('.updbth_stu_card.selected');
+
+    if (allCards.length === 0) return;
+
+    // 【核心智能判定】：如果有选中的，只操作选中的；如果一个都没选，就操作所有人
+    let targetCards = selectedCards.length > 0 ? selectedCards : allCards;
+
+    targetCards.forEach(card => {
+        const inputEl = card.querySelector('.batch-score-input');
+        if (inputEl) {
+            inputEl.value = finalValue; // 填充数字
+            
+            // 联动卡片的选中状态
+            if (isValidScore) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        }
+    });
+
+    updbth_updateSelectedCount(); // 刷新顶部的“已选 X 人”
+}
+
+/**
+ * 辅助函数：点击 5分/10分/15分 胶囊时调用
+ */
+function setGlobalScoreFast(val) {
+    const input = document.getElementById('updbth_globalScore');
+    if(input) {
+        input.value = val;
+        updbth_updateGlobalPreview(); // 更新预览
+        updbth_syncGlobalScore();     // 向下同步
+    }
+}
