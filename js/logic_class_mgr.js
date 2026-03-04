@@ -118,7 +118,7 @@ function doCreateClass() {
     let duplicateNames = [];
 
     lines.forEach(line => {
-        const stuName = line.trim();
+        const stuName = line.trim().replace(/\s+/g, ' '); 
         if(stuName) {
             const exists = students.some(s => s.name === stuName);
             if (exists) {
@@ -567,4 +567,5 @@ function deleteGroup(groupName) {
     showToast(`🗑️ 小组已解散，释放 ${count} 名组员`);
     renderGroupList();
     refreshUI();
+
 }
