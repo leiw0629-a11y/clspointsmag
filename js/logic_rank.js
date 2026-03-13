@@ -50,7 +50,8 @@ function applyRankFilter() {
         });
     } else {
         historyData.forEach(log => {
-            if (isTimeInRange(log.time, timeType, customStart, customEnd)) {
+			const dateString = log.targetDate || log.time;
+            if (isTimeInRange(dateString, timeType, customStart, customEnd)) {
                 const stu = students.find(s => s.name === log.name);
                 if (stu && stu.groupName && (selectedClass === 'all' || stu.className === selectedClass)) {
                     const key = `${stu.className}_${stu.groupName}`;
@@ -177,13 +178,15 @@ function _getGroupDetailData(groupName, className) {
 
     const now = new Date();
     const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(now.getDate() - 7);
+    sevenDaysAgo.setDate(now.getDate() - 6);
     sevenDaysAgo.setHours(0, 0, 0, 0);
 
     historyData.forEach(log => {
         if (!memberNames.includes(log.name)) return;
+		
+		const dateString = log.targetDate || log.time;
         // 区间
-        if (timeType !== 'all' && isTimeInRange(log.time, timeType, customStart, customEnd)) {
+        if (timeType !== 'all' && isTimeInRange(dateString, timeType, customStart, customEnd)) {
             if (log.subject && log.subject.includes("兑换")) { /* 忽略 */ }
             else if (log.revoked) { 
 				// groupIntervalScore -= (log.pointsChange || 0); 
@@ -191,7 +194,7 @@ function _getGroupDetailData(groupName, className) {
             else { groupIntervalScore += (log.pointsChange || 0); }
         }
         // 7天
-        let logTime = new Date(log.time);
+        let logTime = new Date(dateString.replace(/-/g, '/'));
         if (logTime >= sevenDaysAgo && logTime <= now) {
             if ((log.subject && log.subject.includes("兑换")) || log.revoked) { /* 忽略 */ }
             else {
@@ -223,7 +226,8 @@ function _getGroupDetailData(groupName, className) {
             contribution = m.accumulatedPoints !== undefined ? m.accumulatedPoints : (m.totalPoints || 0);
         } else {
             historyData.forEach(log => {
-                if (log.name === m.name && isTimeInRange(log.time, timeType, customStart, customEnd)) {
+				const dateString = log.targetDate || log.time;
+                if (log.name === m.name && isTimeInRange(dateString, timeType, customStart, customEnd)) {
                     if (log.subject && log.subject.includes("兑换")) return;
                     else if (log.revoked) {
                     // 【修正】：撤销记录不计入贡献
