@@ -41,8 +41,8 @@ function getAnalysisData(type, targetName, rangeType) {
          const firstLog = allLogs.find(h => h.name === targetName || (type==='group' && allStus.find(s=>s.name===h.name)?.groupName===targetName));
          
          if(firstLog) {
-             // 有记录：文案变成 "2023年9月1日 ~ 2024年1月18日"
-             const firstTime = new Date(firstLog.time.replace(/-/g, '/'));
+			 const safeDateStr = firstLog.targetDate || firstLog.time;
+             const firstTime = new Date(safeDateStr.replace(/-/g, '/'));
              const today = new Date();
              dateRangeText = `${formatFull(firstTime)} ~ ${formatFull(today)}`;
              
@@ -108,7 +108,8 @@ function getAnalysisData(type, targetName, rangeType) {
 
             if (!isCurrent) {
                 allLogs.forEach(h => {
-                    let hDate = new Date(h.time?.replace(/-/g, '/') || 0);
+					const safeDateStr = h.targetDate || h.time;
+                    let hDate = new Date(safeDateStr?.replace(/-/g, '/') || 0);
                     if (hDate >= startDate) {
                         let sObj = allStus.find(s => s.name === h.name);
                         if (sObj) {
@@ -136,7 +137,8 @@ function getAnalysisData(type, targetName, rangeType) {
 
     allLogs.forEach(h => {
         if (targetNames.includes(h.name)) {
-            let hDate = new Date(String(h.time).replace(/-/g, '/') || 0);
+			const safeDateStr = h.targetDate || h.time;
+            let hDate = new Date(String(safeDateStr).replace(/-/g, '/') || 0);
             const adjVal = getAdjustedValue(h);
 
             if (hDate < startDate) basePoints += adjVal;
@@ -151,7 +153,11 @@ function getAnalysisData(type, targetName, rangeType) {
         basePoints, 
         netPoints, 
         rankInfo: calcRankChange(), 
-        logs: filteredLogs.sort((a,b)=>new Date(a.time)-new Date(b.time)), 
+        logs: filteredLogs.sort((a,b) => {
+            const timeA = new Date((a.targetDate || a.time).replace(/-/g, '/')).getTime();
+            const timeB = new Date((b.targetDate || b.time).replace(/-/g, '/')).getTime();
+            return timeA - timeB;
+        }), 
         targetStudents: allStus.filter(s => targetNames.includes(s.name)),
         startDateStr: displayStartDateStr,
         dateRangeText: dateRangeText // 返回优化后的文案
@@ -232,7 +238,7 @@ function renderLineChart(data, targetName, timeLabel) {
     data.logs.forEach(l => {
         current += l.adjustedValue; // 正常累加每一笔分数
         
-        let timeStr = l.time;
+        let timeStr = l.targetDate || l.time;
         if(timeStr.length > 10) timeStr = timeStr.substring(5, 10); // 截取日期 "01-12"
         
         // set 操作会覆盖旧值，所以 dailyMap 里永远存的是该日期 累加完最后一笔后的 总分
@@ -285,9 +291,24 @@ function renderBarChart(type, data, targetName, timeLabel) {
     if (!chartDom) return;
     const chart = echarts.getInstanceByDom(chartDom) || echarts.init(chartDom);
     
-    if (data.logs.length === 0) { chart.clear(); return; }
+    // 【修改 1】：去掉直接 return 的判断！因为我们想要渲染 0 分的柱子，而不是直接白板
+    // if (data.logs.length === 0) { chart.clear(); return; }
 
     let stats = {};
+
+    // 【修改 2】：预先打底，让所有该出现的人/小组以 0 分状态出现在 X 轴上
+    if (type === 'group') {
+        // 小组视角：遍历该组的所有学生，全部初始为 0
+        data.targetStudents.forEach(s => {
+            stats[s.name] = 0;
+        });
+    } else if (type === 'class') {
+        // 班级视角：遍历该班级的所有小组，全部初始为 0
+        data.targetStudents.forEach(s => {
+            let gName = s.groupName || "未分配";
+            if (!stats[gName]) stats[gName] = 0;
+        });
+    }
     data.logs.forEach(l => {
 		// 1. 兑换记录：不参与柱状图统计
         if (l.subject && l.subject.includes("兑换")) return;
