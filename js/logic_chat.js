@@ -290,10 +290,7 @@ function renderBarChart(type, data, targetName, timeLabel) {
     const chartDom = document.getElementById('barChart');
     if (!chartDom) return;
     const chart = echarts.getInstanceByDom(chartDom) || echarts.init(chartDom);
-    
-    // 【修改 1】：去掉直接 return 的判断！因为我们想要渲染 0 分的柱子，而不是直接白板
-    // if (data.logs.length === 0) { chart.clear(); return; }
-
+	
     let stats = {};
 
     // 【修改 2】：预先打底，让所有该出现的人/小组以 0 分状态出现在 X 轴上
@@ -747,3 +744,265 @@ function applyAnaCustomDate() {
     // document.getElementById('ana_customDateArea').style.display = 'none';
     refreshAnalysisPage(true); 
 }
+
+/**
+ * 导出明细数据（包含总表超链接和个人分表）
+ */
+async function exportStudentDetailsToExcel() {
+    try {
+        // 1. 获取界面的筛选条件
+        const className = document.getElementById('ana_sidebar_ClassSelect').value;
+        const rangeType = document.getElementById('ana_TimeSelect').value;
+        const startVal = document.getElementById('ana_startDate') ? document.getElementById('ana_startDate').value : "";
+        const endVal = document.getElementById('ana_endDate') ? document.getElementById('ana_endDate').value : "";
+
+        const dateObj = getCommonDateRange(rangeType, startVal, endVal);
+        const startDate = dateObj.startDate; 
+        const endDate = dateObj.endDate;
+
+        // 2. 过滤并在内存中按学生分组，同时收集“出现过的项目”
+        const studentDataMap = {};
+        let totalLogsCount = 0;
+        const allValidSubjects = new Set(); // 🌟核心新增：用于收集这段时间出现过的所有有效项目
+
+        (historyData || []).forEach(h => {
+            const safeDateStr = h.targetDate || h.time;
+            const hDate = new Date(safeDateStr.replace(/-/g, '/'));
+
+            if (hDate >= startDate && hDate <= endDate) {
+                const stuObj = (students || []).find(s => s.name === h.name);
+                if (!stuObj) return; 
+
+                if (className === 'all' || stuObj.className === className) {
+                    if (!studentDataMap[h.name]) {
+                        studentDataMap[h.name] = {
+                            name: h.name,
+                            totalPointsChange: 0,
+                            logCount: 0,         // 有效记录条数
+                            subjectScores: {},   // 🌟核心新增：记录该学生各个项目的得分
+                            logs: []             // 完整流水，供分表使用
+                        };
+                    }
+                    
+                    // 判断是否为有效记录（排除撤销和兑换）
+                    const isValidLog = !h.revoked && !h.isExchange && !(h.subject && h.subject.includes("兑换"));
+                    let adjVal = 0;
+
+                    if (isValidLog) {
+                        adjVal = Number(h.pointsChange) || 0;
+                        const subj = h.subject || '未分类记录';
+                        
+                        allValidSubjects.add(subj); // 把这个项目加入动态表头集合
+                        
+                        studentDataMap[h.name].totalPointsChange += adjVal;
+                        studentDataMap[h.name].logCount += 1;
+                        // 累加该项目的分数
+                        studentDataMap[h.name].subjectScores[subj] = (studentDataMap[h.name].subjectScores[subj] || 0) + adjVal;
+                    }
+
+                    // 无论是否有效，都塞进 logs 供底部流水账使用
+                    studentDataMap[h.name].logs.push({ ...h, adjVal: h.pointsChange });
+                    totalLogsCount++;
+                }
+            }
+        });
+
+        if (totalLogsCount === 0) {
+            alert("选定时间段和班级内没有明细数据可供导出哦~");
+            return;
+        }
+
+        // 3. 开始构建 Excel (动态交叉表头)
+        const workbook = new ExcelJS.Workbook();
+        workbook.creator = '萌宠成绩养成记';
+
+        const summarySheet = workbook.addWorksheet('数据总表');
+        
+        // 🌟 将收集到的项目名转为数组，并排序（让表头看起来有规律）
+        const sortedSubjects = Array.from(allValidSubjects).sort();
+
+        // 构造动态列数组
+        const summaryColumns = [
+            { header: '姓名', key: 'name', width: 15 },
+            { header: '有效净增积分', key: 'totalPointsChange', width: 15 }
+        ];
+
+        // 把动态项目拼接到表头后面
+        sortedSubjects.forEach(subj => {
+            summaryColumns.push({
+                header: subj,
+                key: subj, // 键名直接用项目名
+                width: Math.max(12, subj.length * 2.5) // 根据文字长度稍微自适应一下宽度
+            });
+        });
+
+        // 设置动态列
+        summarySheet.columns = summaryColumns;
+
+        // ================= 🌟 核心新增：顶部动态合并大标题 =================
+        // 1. 在最上面插入两行空行（这会把默认在第1行的列头向下推到第3行）
+        summarySheet.insertRow(1, []);
+        summarySheet.insertRow(1, []);
+
+        // 2. 动态合并单元格：从第1行第1列，合并到第2行第N列 (N 为动态列数)
+        summarySheet.mergeCells(1, 1, 2, summaryColumns.length);
+
+        // 3. 构造大标题的文案
+        const titleCell = summarySheet.getCell(1, 1);
+        const sMonth = startDate.getMonth() + 1;
+        const sDate = startDate.getDate();
+        const eMonth = endDate.getMonth() + 1;
+        const eDate = endDate.getDate();
+        const displayClassName = className === 'all' ? '全部班级' : className;
+        
+        titleCell.value = `${displayClassName} ${sMonth}月${sDate}日~${eMonth}月${eDate}日 积分记录`;
+        
+        // 4. 设置大标题样式：居中、大字号、加粗
+        titleCell.font = { size: 16, bold: true, color: { argb: 'FF333333' } };
+        titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+        // 5. 调整字段表头的样式（注意：现在的表头已经变成了第 3 行！）
+        const headerRow = summarySheet.getRow(3);
+        headerRow.font = { bold: true };
+        headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
+        headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF5F5F5' } };
+        headerRow.height = 25; // 稍微撑高一点表头，更好看
+
+        // 将数据转为数组并按积分降序排序
+        const studentArray = Object.values(studentDataMap).sort((a, b) => b.totalPointsChange - a.totalPointsChange);
+
+        // --- 循环写入总表和个人分表 ---
+        studentArray.forEach((stu, index) => {
+            // 🌟 核心修改：大标题占2行，表头占1行，真实数据现在从第4行开始了！
+            const rowIndex = index + 4; 
+
+            // 动态构造这一行的数据
+            const rowData = {
+                name: stu.name, 
+                totalPointsChange: stu.totalPointsChange
+            };
+
+            // 把每个学生对应的项目分数填进去
+            sortedSubjects.forEach(subj => {
+                const score = stu.subjectScores[subj];
+                rowData[subj] = score !== undefined ? score : ''; 
+            });
+
+            // 写入总表
+            summarySheet.addRow(rowData);
+
+            // 给总表的姓名单元格添加超链接（公式兼容 WPS）
+            const nameCell = summarySheet.getCell(`A${rowIndex}`);
+            nameCell.value = {
+                formula: `HYPERLINK("#'${stu.name}'!A1", "${stu.name}")`,
+                result: stu.name
+            };
+            nameCell.font = { color: { argb: 'FF0563C1' }, underline: true };
+            nameCell.alignment = { horizontal: 'center', vertical: 'middle' };
+            // 创建该学生的个人分表
+            // 注意：Excel Sheet 名最长31个字符，且不能包含特殊符号，这里直接用姓名一般没问题
+            const stuSheet = workbook.addWorksheet(stu.name.substring(0, 31));
+            
+            // ------------------ 个人分表构建开始 ------------------
+
+            // 1. 顶部返回按钮（WPS 完美兼容公式）
+            stuSheet.mergeCells('A1:E1');
+            const backCell = stuSheet.getCell('A1');
+            backCell.value = { 
+                formula: `HYPERLINK("#'数据总表'!A1", "🔙 返回数据总表")`,
+                result: '🔙 返回数据总表' 
+            };
+            backCell.font = { bold: true, color: { argb: 'FF0563C1' }, underline: true, size: 12 };
+
+            // 统一设置列宽，兼顾上下两张表的排版
+            stuSheet.columns = [
+                { key: 'col1', width: 20 }, // 汇总用：原因     | 明细用：归属日期
+                { key: 'col2', width: 22 }, // 汇总用：次数     | 明细用：物理时间
+                { key: 'col3', width: 35 }, // 汇总用：累计得分 | 明细用：明细内容
+                { key: 'col4', width: 10 }, // 汇总用：(留空)   | 明细用：分值
+                { key: 'col5', width: 12 }  // 汇总用：(留空)   | 明细用：状态
+            ];
+
+            // ================= 第一部分：顶部汇总表 =================
+            stuSheet.addRow(['【加减分汇总】']).font = { bold: true, size: 12, color: { argb: 'FFD84315' } };
+            
+            const sumHeaderRow = stuSheet.addRow(['加减项', '记录次数', '累计得分']);
+            sumHeaderRow.font = { bold: true };
+            sumHeaderRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF3E0' } }; // 浅橙色表头区分
+
+            const subjectStats = {};
+            let totalValidScore = 0;
+
+            stu.logs.forEach(log => {
+                // 排除撤销和兑换记录，只统计有效得分
+                if (log.revoked || log.isExchange || (log.subject && log.subject.includes("兑换"))) return;
+
+                const subj = log.subject || '未分类记录';
+                if (!subjectStats[subj]) subjectStats[subj] = { count: 0, score: 0 };
+                
+                const score = Number(log.pointsChange) || 0;
+                subjectStats[subj].count += 1;
+                subjectStats[subj].score += score;
+                totalValidScore += score;
+            });
+
+            const statsArray = Object.keys(subjectStats).map(key => ({
+                subject: key, count: subjectStats[key].count, totalScore: subjectStats[key].score
+            })).sort((a, b) => b.totalScore - a.totalScore);
+
+            statsArray.forEach(stat => {
+                stuSheet.addRow([stat.subject, stat.count, stat.totalScore]);
+            });
+
+            const totalRow = stuSheet.addRow(['有效净增总计', '-', totalValidScore]);
+            totalRow.font = { bold: true, color: { argb: 'FFE65100' } };
+
+
+            // ================= 第二部分：底部流水账 =================
+            stuSheet.addRow([]); // 空一行作为缓冲分割
+            stuSheet.addRow(['📝 【详细清单】']).font = { bold: true, size: 12, color: { argb: 'FF2E7D32' } };
+
+            const detailHeaderRow = stuSheet.addRow(['归属日期', '操作时间', '明细内容', '分值', '状态']);
+            detailHeaderRow.font = { bold: true };
+            detailHeaderRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE8F5E9' } }; // 浅绿色表头区分
+
+            // 按时间先后顺序排好
+            stu.logs.sort((a, b) => new Date((a.targetDate || a.time).replace(/-/g, '/')) - new Date((b.targetDate || b.time).replace(/-/g, '/')));
+
+            stu.logs.forEach(log => {
+                let statusStr = "正常";
+                if (log.revoked) statusStr = "已撤销";
+                if (log.isExchange || (log.subject && log.subject.includes("兑换"))) statusStr = "积分兑换";
+
+                stuSheet.addRow([
+                    log.targetDate || '-',
+                    log.time,
+                    log.subject,
+                    log.pointsChange,
+                    statusStr
+                ]);
+            });
+        });
+
+        // 4. 导出为文件并触发下载
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        
+        // 生成文件名
+        const safeDateStr = dateObj.label.replace(/[\\/:*?"<>|]/g, '-');
+        const fileName = `${className === 'all' ? '全部班级' : className}_明细数据_${safeDateStr}.xlsx`;
+
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+
+    } catch (error) {
+        console.error("生成 Excel 失败:", error);
+        alert("导出明细遇到了点问题，请检查控制台。");
+    }
+}
+
