@@ -140,9 +140,12 @@ function renderMainTable() {
         
         if (historyData && historyData.length > 0) {
             const firstLog = historyData.reduce((prev, curr) => {
-                return (prev.time < curr.time) ? prev : curr;
+                // 【同步修改】比较 earliest targetDate
+                const prevDate = prev.targetDate || prev.time;
+                const currDate = curr.targetDate || curr.time;
+                return (prevDate < currDate) ? prev : curr;
             });
-            const firstDate = new Date(firstLog.time.replace(/-/g, '/'));
+            const firstDate = new Date((firstLog.targetDate || firstLog.time).replace(/-/g, '/'));
             const today = new Date();
             timeLabel = `${formatFull(firstDate)} ~ ${formatFull(today)}`;
         } else {
@@ -170,7 +173,9 @@ function renderMainTable() {
         } else {
             historyData.forEach(log => {
                 if (log.name === stu.name) {
-                    let logTime = new Date(log.time.replace(/-/g, '/'));
+					let dateString = log.targetDate || log.time;
+					
+                    let logTime = new Date(dateString.replace(/-/g, '/'));
                     if (logTime >= startDate && logTime <= endDate) {
                         if (log.revoked) {
                             // dynamicScore -= (log.pointsChange || 0);
