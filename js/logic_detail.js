@@ -37,7 +37,8 @@ function openStudentDetail(name) {
     let badCount = 0;
     historyData.forEach(h => {
         if (h.name !== student.name || h.revoked) return;
-        const logTime = new Date(h.time.replace(/-/g, '/'));
+        const dateString = h.targetDate || h.time;
+        const logTime = new Date(dateString.replace(/-/g, '/')); // 依然保留兼容 Safari 的写法
         if (logTime < startDate || logTime > endDate) return;
         if (h.isExchange === true || (h.subject && h.subject.includes("兑换"))) return;
         const change = h.pointsChange !== undefined ? h.pointsChange : h.points;
