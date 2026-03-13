@@ -70,24 +70,15 @@ function formatAnyTime(timeInput) {
 function isTimeInRange(recordTimeStr, rangeType, startDate, endDate) {
     if (rangeType === 'all') return true;
 
-    const recordDate = new Date(recordTimeStr);
-    const now = new Date();
-    now.setHours(23, 59, 59, 999);
+    // 1. 解决 Safari/iOS 的横杠兼容性问题
+    const safeTimeStr = recordTimeStr.replace(/-/g, '/');
+    const recordDate = new Date(safeTimeStr);
 
-    let targetDate = new Date(now);
+    // 2. 直接调用已有的核心函数，保证全局时间边界 100% 统一！
+    const range = getCommonDateRange(rangeType, startDate, endDate);
 
-    if (rangeType === 'week') {
-        targetDate.setDate(now.getDate() - 7);
-    } else if (rangeType === 'month') {
-        targetDate.setMonth(now.getMonth() - 1);
-    } else if (rangeType === 'year') {
-        targetDate.setFullYear(now.getFullYear() - 1);
-    } else if (rangeType === 'custom') {
-        const sDate = new Date(startDate); sDate.setHours(0,0,0,0);
-        const eDate = new Date(endDate); eDate.setHours(23,59,59,999);
-        return recordDate >= sDate && recordDate <= eDate;
-    }
-    return recordDate >= targetDate;
+    // 3. 直接判断是否在安全区间内
+    return recordDate >= range.startDate && recordDate <= range.endDate;
 }
 
 function getPetInfo(student) {
